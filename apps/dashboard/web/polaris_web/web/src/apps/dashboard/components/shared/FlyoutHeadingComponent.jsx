@@ -1,19 +1,6 @@
 import { Badge, Box, Button, ButtonGroup, HorizontalStack, Icon, Link, Text, VerticalStack } from '@shopify/polaris'
 import React from 'react'
 
-function MoreInfoComponent({ icon, label, text, isLink, linkUrl }) {
-    return (
-        <HorizontalStack gap={"1"} align="center">
-            <Box><Icon color="subdued" source={icon} /></Box>
-            {label !== undefined ? <Text color="subdued" fontWeight="medium" variant="bodyMd">{label}</Text> : null}
-            {isLink ?
-                <Link url={linkUrl}><Text color="subdued" variant="bodyMd">{text}</Text></Link> :
-                <Text color="subdued" variant="bodyMd">{text}</Text>
-            }
-        </HorizontalStack>
-    )
-}
-
 function FlyoutHeadingComponent({ itemDetails }) {
     return (
 
@@ -24,7 +11,7 @@ function FlyoutHeadingComponent({ itemDetails }) {
                         <Text variant="headingMd" breakWord>{itemDetails.title}</Text>
                         <Badge status={itemDetails.priority}>{itemDetails.priorityValue}</Badge>
                     </HorizontalStack>
-                    <HorizontalStack gap="3" wrap align="start">
+                    <HorizontalStack gap="2" wrap align="start">
                         {itemDetails.moreInfo.map((item, index) => (
                             <React.Fragment key={index}>
                                 <HorizontalStack gap="1" align="center">

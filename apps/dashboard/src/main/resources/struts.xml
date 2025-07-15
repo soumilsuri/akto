@@ -1894,7 +1894,7 @@
                 <param name="includeProperties">^actionErrors.*</param>
             </result>
             <result name="SUCCESS"  type="json">
-                <param name="root">sensitiveUnauthenticatedEndpointsCount</param>
+                <param name="includeProperties">sensitiveUnauthenticatedEndpointsCount,sensitiveUnauthenticatedEndpointsUrls.*</param>
             </result>
             <result name="ERROR" type="json">
                 <param name="statusCode">422</param>
@@ -1916,7 +1916,7 @@
                 <param name="includeProperties">^actionErrors.*</param>
             </result>
             <result name="SUCCESS"  type="json">
-                <param name="root">highRiskThirdPartyEndpointsCount</param>
+                <param name="includeProperties">highRiskThirdPartyEndpointsCount,highRiskThirdPartyEndpointsUrls.*</param>
             </result>
             <result name="ERROR" type="json">
                 <param name="statusCode">422</param>
@@ -1938,7 +1938,7 @@
                 <param name="includeProperties">^actionErrors.*</param>
             </result>
             <result name="SUCCESS"  type="json">
-                <param name="root">shadowApisCount</param>
+                <param name="includeProperties">shadowApisCount,shadowApisUrls.*</param>
             </result>
             <result name="ERROR" type="json">
                 <param name="statusCode">422</param>

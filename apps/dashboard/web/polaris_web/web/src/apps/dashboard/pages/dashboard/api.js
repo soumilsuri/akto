@@ -90,28 +90,28 @@ const api = {
         })
     },
 
-    fetchSensitiveAndUnauthenticatedValue: async () => {
+    fetchSensitiveAndUnauthenticatedValue: async (showUrls) => {
         return await request({
             url: '/api/getSensitiveAndUnauthenticatedValue',
             method: 'post',
-            data: {}
-        })
+            data: { showUrls: true}
+        });
     },
 
-    fetchHighRiskThirdPartyValue: async () => {
+    fetchHighRiskThirdPartyValue: async (showUrls) => {
         return await request({
             url: '/api/getHighRiskThirdPartyValue',
             method: 'post',
-            data: {}
-        })
+            data: { showUrls: true }
+        });
     },
 
-    fetchShadowApisValue: async () => {
+    fetchShadowApisValue: async (showUrls) => {
         return await request({
             url: '/api/getShadowApis',
             method: 'post',
-            data: {}
-        })
+            data: { showUrls: true }
+        });
     },
 
     fetchAdminSettings() {

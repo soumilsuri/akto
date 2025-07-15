@@ -16,9 +16,9 @@ export async function fetchAllData(setJiraTicketUrlMap, setFetchedData, setActio
         ] = await Promise.all([
             api.fetchApiStats(startTimestamp, endTimestamp),
             observeApi.fetchCountMapOfApis(),
-            api.fetchSensitiveAndUnauthenticatedValue(),
-            api.fetchHighRiskThirdPartyValue(),
-            api.fetchShadowApisValue(),
+            api.fetchSensitiveAndUnauthenticatedValue(true),
+            api.fetchHighRiskThirdPartyValue(true),
+            api.fetchShadowApisValue(true),
             api.fetchAdminSettings()
         ]);
 

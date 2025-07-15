@@ -39,7 +39,7 @@ const PRIORITY_P2 = 'P2';
 const PRIORITY_P0 = 'P0';
 const CRITICAL_CARD_ID = 'p0-critical';
 
-export const ActionItemsContent = () => {
+export const ActionItemsContent = ({ onCountChange }) => {
     const navigate = useNavigate();
     const [actionItems, setActionItems] = useState([]);
     const [criticalCardData, setCriticalCardData] = useState(null);
@@ -52,6 +52,7 @@ export const ActionItemsContent = () => {
     const [fetchedData, setFetchedData] = useState(null);
     const [showFlyout, setShowFlyout] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [totalActionItemsCount, setTotalActionItemsCount] = useState(0);
 
     const handleJiraIntegration = (actionItem) => {
         handleJiraIntegrationUtil(
@@ -98,15 +99,13 @@ export const ActionItemsContent = () => {
 
     const handleCardClick = (item) => {
         setSelectedItem(item);
-        console.log('Card clicked item:', item);
         setShowFlyout(true);
     };
 
     const handleRowClick = (item) => {
-    console.log('Row clicked item:', item); 
-    setSelectedItem(item);
-    setShowFlyout(true);
-};
+        setSelectedItem(item);
+        setShowFlyout(true);
+    };
 
     const fetchAllData = async () => {
         try {
@@ -121,6 +120,12 @@ export const ActionItemsContent = () => {
     }, []);
 
     useEffect(() => {
+        if (onCountChange) {
+            onCountChange(totalActionItemsCount);
+        }
+    }, [totalActionItemsCount, onCountChange]);
+
+    useEffect(() => {
         if (!fetchedData) return;
 
         const {
@@ -131,10 +136,19 @@ export const ActionItemsContent = () => {
             shadowApisValue
         } = fetchedData;
 
+        const sensitiveCount = SensitiveAndUnauthenticatedValue?.sensitiveUnauthenticatedEndpointsCount || 0;
+        const highRiskThirdPartyCount = highRiskThirdPartyValue?.highRiskThirdPartyEndpointsCount || 0;
+        const shadowApisCount = shadowApisValue?.shadowApisCount || 0;
+
+        console.log("Sensitive URLs:", SensitiveAndUnauthenticatedValue?.sensitiveUnauthenticatedEndpointsUrls);
+        console.log("High-Risk Third-Party URLs:", highRiskThirdPartyValue?.highRiskThirdPartyEndpointsUrls);
+        console.log("Shadow API URLs:", shadowApisValue?.shadowApisUrls);
+
         const sensitiveDataCount = countMapResp?.totalApisCount || 0;
 
         if (!(apiStats?.apiStatsEnd && apiStats?.apiStatsStart)) {
             setActionItems([]);
+            setTotalActionItemsCount(0);
             return;
         }
 
@@ -160,29 +174,35 @@ export const ActionItemsContent = () => {
             createActionItem('4', PRIORITY_P2, `${Math.max(0, thirdPartyDiff)} Third-party APIs frequently invoked or newly integrated within last 7 days`,
                 "New integrations may introduce unvetted security risks", "Integration Team", "Low", Math.max(0, thirdPartyDiff), ACTION_ITEM_TYPES.THIRD_PARTY_APIS),
 
-            createActionItem('5', PRIORITY_P1, `${highRiskThirdPartyValue} External APIs with high risk scores requiring attention`,
-                "Supply chain vulnerabilities that can compromise entire systems", "Security Team", "High", highRiskThirdPartyValue, ACTION_ITEM_TYPES.HIGH_RISK_THIRD_PARTY),
+            createActionItem('5', PRIORITY_P1, `${highRiskThirdPartyCount} External APIs with high risk scores requiring attention`,
+                "Supply chain vulnerabilities that can compromise entire systems", "Security Team", "High", highRiskThirdPartyValue, ACTION_ITEM_TYPES.HIGH_RISK_THIRD_PARTY),//
 
-            createActionItem('6', PRIORITY_P2, `${shadowApisValue} Undocumented APIs discovered in the system`,
-                "Unmonitored attack surface with unknown security posture", "API Governance", "High", shadowApisValue, ACTION_ITEM_TYPES.SHADOW_APIS)
+            createActionItem('6', PRIORITY_P2, `${shadowApisCount} Undocumented APIs discovered in the system`,
+                "Unmonitored attack surface with unknown security posture", "API Governance", "High", shadowApisValue, ACTION_ITEM_TYPES.SHADOW_APIS)//
         ];
 
-        setActionItems(items.filter(item => item.count > 0));
+        const filteredItems = items.filter(item => item.count > 0);
+        setActionItems(filteredItems);
 
-        if (SensitiveAndUnauthenticatedValue > 0) {
+        let totalCount = filteredItems.length;
+        
+        if (sensitiveCount > 0) {//
+            totalCount += 1; 
             setCriticalCardData({
                 id: CRITICAL_CARD_ID,
                 priority: PRIORITY_P0,
-                title: `${SensitiveAndUnauthenticatedValue} APIs returning sensitive data without encryption or proper authorization`,
+                title: `${sensitiveCount} APIs returning sensitive data without encryption or proper authorization`,
                 description: 'Potential data breach with regulatory and compliance implications',
                 team: 'Security & Development',
                 effort: 'High',
-                count: SensitiveAndUnauthenticatedValue,
+                count: sensitiveCount,
                 actionItemType: ACTION_ITEM_TYPES.CRITICAL_SENSITIVE_UNAUTH
             });
         } else {
             setCriticalCardData(null);
         }
+
+        setTotalActionItemsCount(totalCount);
 
     }, [fetchedData, jiraTicketUrlMap]);
 

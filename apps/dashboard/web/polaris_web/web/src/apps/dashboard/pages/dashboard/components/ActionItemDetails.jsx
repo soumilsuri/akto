@@ -3,6 +3,7 @@ import React from 'react';
 import { ClockMajor, TeamMajor, ToolsMajor } from '@shopify/polaris-icons';
 import FlyoutHeadingComponent from '../../../components/shared/FlyoutHeadingComponent';
 import JiraTicketDisplay from '../../../components/shared/JiraTicketDisplay';
+import FlyoutTable from './FlyoutTable';
 
 function ActionItemDetails({ item, jiraTicketUrlMap = {}, onJiraButtonClick }) {
     if (!item) return null;
@@ -38,10 +39,10 @@ function ActionItemDetails({ item, jiraTicketUrlMap = {}, onJiraButtonClick }) {
                 icon: ToolsMajor,
                 text: itemData?.effort || 'Medium'
             },
-            {
-                icon: ClockMajor,
-                text: '2 hours ago'
-            }
+            // {
+            //     icon: ClockMajor,
+            //     text: '2 hours ago'
+            // }
         ],
         secondaryActions: [
             {
@@ -72,6 +73,7 @@ function ActionItemDetails({ item, jiraTicketUrlMap = {}, onJiraButtonClick }) {
                     {itemData?.description || itemData?.whyItMatters || 'No additional details available.'}
                 </Text>
             </Box>
+            <FlyoutTable />
         </VerticalStack>
     );
 }
