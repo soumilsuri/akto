@@ -52,7 +52,7 @@ export const ActionItemsContent = ({ onCountChange }) => {
     const [totalActionItemsCount, setTotalActionItemsCount] = useState(0);
 
     const handleJiraIntegration = async (actionItem) => {
-        const integrated = Boolean(window?.JIRA_INTEGRATED);
+        const integrated = window.JIRA_INTEGRATED === 'true'
         if (!integrated) {
             navigate(JIRA_INTEGRATION_URL);
             return;
@@ -69,7 +69,6 @@ export const ActionItemsContent = ({ onCountChange }) => {
             }
             setModalActive(true);
         } catch (e) {
-            console.error("Error fetching Jira integration details:", e); 
         }
     };
 
