@@ -90,27 +90,27 @@ const api = {
         })
     },
 
-    fetchSensitiveAndUnauthenticatedValue: async (showUrls) => {
+    fetchSensitiveAndUnauthenticatedValue: async (showApiInfo) => {
         return await request({
             url: '/api/getSensitiveAndUnauthenticatedValue',
             method: 'post',
-            data: { showUrls: true}
+            data: { showApiInfo: true}
         });
     },
 
-    fetchHighRiskThirdPartyValue: async (showUrls) => {
+    fetchHighRiskThirdPartyValue: async (showApiInfo) => {
         return await request({
             url: '/api/getHighRiskThirdPartyValue',
             method: 'post',
-            data: { showUrls: true }
+            data: { showApiInfo: true }
         });
     },
 
-    fetchShadowApisValue: async (showUrls) => {
+    fetchShadowApisValue: async (showApiInfo) => {
         return await request({
             url: '/api/getShadowApis',
             method: 'post',
-            data: { showUrls: true }
+            data: { showApiInfo: true }
         });
     },
 
@@ -119,6 +119,14 @@ const api = {
             url: '/api/fetchAdminSettings',
             method: 'post',
             data: {}
+        })
+    },
+
+    fetchApiInfosWithCustomFilter: async (type, lowerLimitValue, higherLimitValue, fieldName) => {
+        return await request({
+            url: '/api/fetchApiInfosWithCustomFilter',
+            method: 'post',
+            data: { type, lowerLimitValue, higherLimitValue, fieldName }
         })
     },
 }

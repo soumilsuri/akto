@@ -51,6 +51,51 @@ export const ActionItemsContent = ({ onCountChange }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [totalActionItemsCount, setTotalActionItemsCount] = useState(0);
 
+    const testAllFilters = async () => {
+        try {
+            console.log("Testing all filters...");
+            
+            // Test RISK_SCORE filter
+            const riskScoreResults = await api.fetchApiInfosWithCustomFilter(
+                'RISK_SCORE',
+                0,
+                0,
+                'riskScore'
+            );
+            console.log('RISK_SCORE Results (>3):', riskScoreResults.apiInfos);
+            
+            // Test SENSITIVE filter
+            const sensitiveResults = await api.fetchApiInfosWithCustomFilter(
+                'SENSITIVE',
+                0,
+                0,
+                ''
+            );
+            console.log('SENSITIVE Results:', sensitiveResults.apiInfos);
+            
+            // Test AUTH_TYPES filter
+            const authTypesResults = await api.fetchApiInfosWithCustomFilter(
+                'AUTH_TYPES',
+                0,
+                0,
+                ''
+            );
+            console.log('AUTH_TYPES Results:', authTypesResults.apiInfos);
+            
+            // Test THIRD_PARTY filter
+            const sevenDaysAgo = func.timeNow() - 604800; // 7 days ago
+            const thirdPartyResults = await api.fetchApiInfosWithCustomFilter(
+                'THIRD_PARTY',
+                sevenDaysAgo,
+                0,
+                'discoveredTimestamp'
+            );
+            console.log('THIRD_PARTY Results:', thirdPartyResults.apiInfos);
+            
+        } catch (error) {
+            console.error("Error testing filters:", error);
+        }
+    };
     const handleJiraIntegration = async (actionItem) => {
         const integrated = window.JIRA_INTEGRATED === 'true'
         if (!integrated) {
@@ -159,6 +204,7 @@ export const ActionItemsContent = ({ onCountChange }) => {
 
     useEffect(() => {
         fetchAllData();
+        testAllFilters();
     }, []);
 
     useEffect(() => {
@@ -182,9 +228,9 @@ export const ActionItemsContent = ({ onCountChange }) => {
         const highRiskThirdPartyCount = highRiskThirdPartyValue?.highRiskThirdPartyEndpointsCount || 0;
         const shadowApisCount = shadowApisValue?.shadowApisCount || 0;
 
-        console.log("Sensitive URLs:", SensitiveAndUnauthenticatedValue?.sensitiveUnauthenticatedEndpointsUrls);
-        console.log("High-Risk Third-Party URLs:", highRiskThirdPartyValue?.highRiskThirdPartyEndpointsUrls);
-        console.log("Shadow API URLs:", shadowApisValue?.shadowApisUrls);
+        console.log("Sensitive URLs:", SensitiveAndUnauthenticatedValue?.sensitiveUnauthenticatedEndpointsApiInfo);
+        console.log("High-Risk Third-Party URLs:", highRiskThirdPartyValue?.highRiskThirdPartyEndpointsApiInfo);
+        console.log("Shadow API URLs:", shadowApisValue?.shadowApisApiInfo);
 
         const sensitiveDataCount = countMapResp?.totalApisCount || 0;
 
@@ -200,7 +246,7 @@ export const ActionItemsContent = ({ onCountChange }) => {
             .filter(([score]) => parseInt(score) > 3)
             .reduce((total, [, count]) => total + count, 0);
 
-        const unauthenticatedCount = apiStatsEnd.authTypeMap?.UNAUTHENTICATED || 0;
+        const unauthenticatedCount = apiStatsEnd.authTypeMap?.UNAUTHENTICATED || 0;//
         const thirdPartyDiff = (apiStatsEnd.accessTypeMap?.THIRD_PARTY || 0) - (apiStatsStart.accessTypeMap?.THIRD_PARTY || 0);
 
         const items = [
@@ -216,11 +262,11 @@ export const ActionItemsContent = ({ onCountChange }) => {
             createActionItem('4', 'P2', `${Math.max(0, thirdPartyDiff)} Third-party APIs frequently invoked or newly integrated within last 7 days`,
                 "New integrations may introduce unvetted security risks", "Integration Team", "Low", Math.max(0, thirdPartyDiff), ACTION_ITEM_TYPES.THIRD_PARTY_APIS),
 
-            createActionItem('5', 'P1', `${highRiskThirdPartyValue} External APIs with high risk scores requiring attention`,
-                "Supply chain vulnerabilities that can compromise entire systems", "Security Team", "High", highRiskThirdPartyValue, ACTION_ITEM_TYPES.HIGH_RISK_THIRD_PARTY),
+            createActionItem('5', 'P1', `${highRiskThirdPartyCount} External APIs with high risk scores requiring attention`,
+                "Supply chain vulnerabilities that can compromise entire systems", "Security Team", "High", highRiskThirdPartyCount, ACTION_ITEM_TYPES.HIGH_RISK_THIRD_PARTY),
 
-            createActionItem('6', 'P2', `${shadowApisValue} Undocumented APIs discovered in the system`,
-                "Unmonitored attack surface with unknown security posture", "API Governance", "High", shadowApisValue, ACTION_ITEM_TYPES.SHADOW_APIS)
+            createActionItem('6', 'P2', `${shadowApisCount} Undocumented APIs discovered in the system`,
+                "Unmonitored attack surface with unknown security posture", "API Governance", "High", shadowApisCount, ACTION_ITEM_TYPES.SHADOW_APIS)
         ];
 
         const filteredItems = items.filter(item => item.count > 0);
@@ -233,7 +279,7 @@ export const ActionItemsContent = ({ onCountChange }) => {
             setCriticalCardData({
                 id: 'p0-critical',
                 priority: 'P0',
-                title: `${SensitiveAndUnauthenticatedValue} APIs returning sensitive data without encryption or proper authorization`,
+                title: `${sensitiveCount} APIs returning sensitive data without encryption or proper authorization`,
                 description: 'Potential data breach with regulatory and compliance implications',
                 team: 'Security & Development',
                 effort: 'High',

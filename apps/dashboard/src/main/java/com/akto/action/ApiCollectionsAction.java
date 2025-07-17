@@ -81,6 +81,12 @@ public class ApiCollectionsAction extends UserAction {
     List<String> highRiskThirdPartyEndpointsUrls = new ArrayList<>();
     @Getter
     List<String> shadowApisUrls = new ArrayList<>();
+    @Getter
+    List<ApiInfo> sensitiveUnauthenticatedEndpointsApiInfo = new ArrayList<>();
+    @Getter
+    List<ApiInfo> highRiskThirdPartyEndpointsApiInfo = new ArrayList<>();
+    @Getter
+    List<ApiInfo> shadowApisApiInfo = new ArrayList<>();
 
     public List<ApiInfoKey> getApiList() {
         return apiList;
@@ -983,20 +989,21 @@ public class ApiCollectionsAction extends UserAction {
     }
 
     @Setter
-    private boolean showUrls;
+    private boolean showApiInfo;
 
     public String fetchSensitiveAndUnauthenticatedValue() {
         List<ApiInfo> sensitiveEndpoints = ApiInfoDao.instance.findAll(Filters.eq(ApiInfo.IS_SENSITIVE, true));
 
-        this.sensitiveUnauthenticatedEndpointsUrls.clear();
+        this.sensitiveUnauthenticatedEndpointsApiInfo.clear();
+        this.sensitiveUnauthenticatedEndpointsCount = 0;
 
         for (ApiInfo apiInfo : sensitiveEndpoints) {
             if (apiInfo.getAllAuthTypesFound() != null && !apiInfo.getAllAuthTypesFound().isEmpty()) {
                 for (Set<ApiInfo.AuthType> authType : apiInfo.getAllAuthTypesFound()) {
                     if (authType.contains(ApiInfo.AuthType.UNAUTHENTICATED)) {
                         this.sensitiveUnauthenticatedEndpointsCount++;
-                        if (this.showUrls) {
-                            this.sensitiveUnauthenticatedEndpointsUrls.add(apiInfo.getId().getUrl());
+                        if (this.showApiInfo) {
+                            this.sensitiveUnauthenticatedEndpointsApiInfo.add(apiInfo);
                         }
                     }
                 }
@@ -1014,12 +1021,10 @@ public class ApiCollectionsAction extends UserAction {
         );
 
         this.highRiskThirdPartyEndpointsCount = highRiskEndpoints.size();
-        this.highRiskThirdPartyEndpointsUrls.clear();
+        this.highRiskThirdPartyEndpointsApiInfo.clear();
 
-        if (this.showUrls) {
-            for (ApiInfo apiInfo : highRiskEndpoints) {
-                this.highRiskThirdPartyEndpointsUrls.add(apiInfo.getId().getUrl());
-            }
+        if (this.showApiInfo) {
+            this.highRiskThirdPartyEndpointsApiInfo.addAll(highRiskEndpoints);
         }
 
         return Action.SUCCESS.toUpperCase();
@@ -1028,12 +1033,15 @@ public class ApiCollectionsAction extends UserAction {
     public String fetchShadowApisValue() {
         ApiCollection shadowApisCollection = ApiCollectionsDao.instance.findByName(AKTO_DISCOVERED_APIS_COLLECTION);
 
-        this.shadowApisUrls.clear();
+        this.shadowApisApiInfo.clear();
 
         if (shadowApisCollection != null) {
             this.shadowApisCount = shadowApisCollection.getUrls().size();
-            if (this.showUrls) {
-                this.shadowApisUrls.addAll(shadowApisCollection.getUrls());
+            if (this.showApiInfo) {
+                List<ApiInfo> shadowApiInfos = ApiInfoDao.instance.findAll(
+                    Filters.eq(ApiInfo.ID_API_COLLECTION_ID, shadowApisCollection.getId())
+                );
+                this.shadowApisApiInfo.addAll(shadowApiInfos);
             }
         } else {
             this.shadowApisCount = 0;
