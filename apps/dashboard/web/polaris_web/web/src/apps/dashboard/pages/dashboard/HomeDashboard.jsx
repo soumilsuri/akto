@@ -215,9 +215,16 @@ function HomeDashboard() {
     async function getActionItemsDataAndCount() {
         const data = await fetchActionItemsData();
         setActionItemsData(data);
+        const excludeKeys = new Set([
+            'numBatches',
+            'highRiskNumBatches',
+            'shadowNumBatches',
+            'notTestedNumBatches'
+        ]);
         let count = 0;
-        Object.values(data).forEach((val) => {
-            if (val > 0) count++;
+        Object.entries(data).forEach(([key, val]) => {
+            if (excludeKeys.has(key)) return;
+            if (typeof val === 'number' && val > 0) count++;
         });
         setActionItemsCount(count);
     }
