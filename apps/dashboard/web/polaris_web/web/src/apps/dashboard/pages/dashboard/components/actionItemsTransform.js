@@ -141,7 +141,7 @@ export async function fetchActionItemsData() {
     let unauthenticatedCount = unauthenticatedApis;
     let thirdPartyDiff = 0;
     let sensitiveDataCount = countMapResp?.totalApisCount || 0;
-    let notTestedApiCount = notTestedApiCountResult.status === 'fulfilled' ? notTestedApiCountResult.value?.notTestedEndpointsCount || 0 : 0;
+    // let notTestedApiCount = notTestedApiCountResult.status === 'fulfilled' ? notTestedApiCountResult.value?.notTestedEndpointsCount || 0 : 0;
     let onlyOnceTestedApiCount = onlyOnceTestedApiCountResult.status === 'fulfilled' ? onlyOnceTestedApiCountResult.value?.onlyOnceTestedEndpointsCount || 0 : 0;
     let vulnerableApiCount = vulnerableApiCountResult.status === 'fulfilled' ? vulnerableApiCountResult.value?.buaCategoryCount || 0 : 0;
     let misConfiguredTestsCount = misConfiguredTestsCountResult.status === 'fulfilled' ? misConfiguredTestsCountResult.value?.misConfiguredTestsCount || 0 : 0;
@@ -175,7 +175,7 @@ export async function fetchActionItemsData() {
         shadowNumBatches,
         allShadowApisInfo,
         notTestedNumBatches,
-        allNotTestedEndpointsApiInfo
+        allNotTestedEndpointsApiInfo,
         brokenAuthIssuesCount,
         highValueIssuesCount,
         issuesByApis,
@@ -226,7 +226,7 @@ export async function fetchAllActionItemsApiInfo() {
         api.getNotTestedAPICount(true),
         api.getOnlyOnceTestedAPICount(true),
         api.getMisConfiguredTestsCount(true),
-        api.getVulnerableApiCount(true)
+        api.getVulnerableApiCount(true),
         api.fetchActionItemsApiInfo('HIGH_RISK'),
         api.fetchActionItemsApiInfo('SENSITIVE'),
         api.fetchActionItemsApiInfo('THIRD_PARTY'),
@@ -238,7 +238,6 @@ export async function fetchAllActionItemsApiInfo() {
         api.fetchIssuesByApis(true),
         api.fetchUrlsByIssues(true)
     ]);
-
     const [
         sensitiveAndUnauthenticatedValueResult,
         highRiskThirdPartyValueResult,
@@ -247,54 +246,33 @@ export async function fetchAllActionItemsApiInfo() {
         notTestedApiInfoResult,
         onlyOnceTestedApiInfoResult,
         misConfiguredTestsApiInfoResult,
-        vulnerableApiCountResult
-    ] = results;
-
-    return {
-        highRiskApis: allResults['HIGH_RISK'].apiInfos,
-        sensitiveApis: allResults['SENSITIVE'].apiInfos,
-        thirdPartyApis: allResults['THIRD_PARTY'].apiInfos,
-        highRiskNumBatches: allResults['HIGH_RISK'].numBatches,
-        sensitiveNumBatches: allResults['SENSITIVE'].numBatches,
-        thirdPartyNumBatches: allResults['THIRD_PARTY'].numBatches,
-        highRiskTotalCount: allResults['HIGH_RISK'].totalCount,
-        sensitiveTotalCount: allResults['SENSITIVE'].totalCount,
-        thirdPartyTotalCount: allResults['THIRD_PARTY'].totalCount,
-        sensitiveAndUnauthenticated: sensitiveAndUnauthenticatedValueResult.status === 'fulfilled' ? sensitiveAndUnauthenticatedValueResult?.value?.sensitiveUnauthenticatedEndpointsApiInfo || [] : [],
-        highRiskThirdParty: highRiskThirdPartyValueResult.status === 'fulfilled' ? highRiskThirdPartyValueResult?.value?.highRiskThirdPartyEndpointsApiInfo || [] : [],
-        shadowApis: shadowApisValueResult.status === 'fulfilled' ? shadowApisValueResult?.value?.shadowApisCount || [] : [],
-        unauthenticatedApis: unauthenticatedApisResult.status === 'fulfilled' ? unauthenticatedApisResult?.value?.unauthenticatedApiList || [] : [],
-        notTestedEndpointsApiInfo: notTestedApiInfoResult.status === 'fulfilled' ? notTestedApiInfoResult.value?.notTestedEndpointsApiInfo || [] : [],
-        onlyOnceTestedEndpointsApiInfo: onlyOnceTestedApiInfoResult.status === 'fulfilled' ? onlyOnceTestedApiInfoResult.value?.onlyOnceTestedEndpointsApiInfo || [] : [],
-        misConfiguredTestsApiInfo: misConfiguredTestsApiInfoResult.status === 'fulfilled' ? misConfiguredTestsApiInfoResult.value?.misConfiguredTestsApiInfo || [] : [],
-        vulnerableApiCountApiInfo: vulnerableApiCountResult.status === 'fulfilled' ? vulnerableApiCountResult.value?.buaCategoryApiInfo || [] : []
+        vulnerableApiCountResult,
         highRiskResult,
         sensitiveResult,
         thirdPartyResult,
-        notTestedApiInfoResult,
-        onlyOnceTestedApiInfoResult,
-        misConfiguredTestsApiInfoResult,
-        vulnerableApiCountResult,
+        notTestedApiInfoResultDup,
+        onlyOnceTestedApiInfoResultDup,
+        misConfiguredTestsApiInfoResultDup,
+        vulnerableApiCountResultDup,
         brokenAuthIssuesApiInfoResult,
         issuesByApisResult,
         urlsByIssuesResult
     ] = results;
 
-    const sensitiveAndUnauthenticatedApis = sensitiveAndUnauthenticatedValueResult.status === 'fulfilled' ? sensitiveAndUnauthenticatedValueResult?.value?.sensitiveUnauthenticatedEndpointsApiInfo || [] : [];
-    const highRiskThirdPartyApis = highRiskThirdPartyValueResult.status === 'fulfilled' ? highRiskThirdPartyValueResult?.value?.highRiskThirdPartyEndpointsApiInfo || [] : [];
-    const shadowApis = shadowApisValueResult.status === 'fulfilled' ? shadowApisValueResult?.value?.shadowApisCount || [] : [];
-    const unauthenticatedApis = unauthenticatedApisResult.status === 'fulfilled' ? unauthenticatedApisResult?.value?.unauthenticatedApiList || [] : [];
-    const highRiskApis = highRiskResult.status === 'fulfilled' ? highRiskResult?.value?.response?.apiInfos || [] : [];
-    const sensitiveDataEndpoints = sensitiveResult.status === 'fulfilled' ? sensitiveResult?.value?.response?.apiInfos || [] : [];
-    const thirdPartyApis = thirdPartyResult.status === 'fulfilled' ? thirdPartyResult?.value?.response?.apiInfos || [] : [];
-    const notTestedEndpointsApiInfo = notTestedApiInfoResult.status === 'fulfilled' ? notTestedApiInfoResult.value?.notTestedEndpointsApiInfo || [] : [];
-    const onlyOnceTestedEndpointsApiInfo = onlyOnceTestedApiInfoResult.status === 'fulfilled' ? onlyOnceTestedApiInfoResult.value?.onlyOnceTestedEndpointsApiInfo || [] : [];
-    const misConfiguredTestsApiInfo = misConfiguredTestsApiInfoResult.status === 'fulfilled' ? misConfiguredTestsApiInfoResult.value?.misConfiguredTestsApiInfo || [] : [];
-    const vulnerableApiCountApiInfo = vulnerableApiCountResult.status === 'fulfilled' ? vulnerableApiCountResult.value?.buaCategoryApiInfo || [] : [];
-    const brokenAuthIssuesApiInfo = brokenAuthIssuesApiInfoResult.status === 'fulfilled' ? brokenAuthIssuesApiInfoResult.value?.buaCategoryApiInfo || [] : [];
+    const sensitiveAndUnauthenticatedApis = sensitiveAndUnauthenticatedValueResult.status === 'fulfilled' ? (sensitiveAndUnauthenticatedValueResult.value?.sensitiveUnauthenticatedEndpointsApiInfo || []) : [];
+    const highRiskThirdPartyApis = highRiskThirdPartyValueResult.status === 'fulfilled' ? (highRiskThirdPartyValueResult.value?.highRiskThirdPartyEndpointsApiInfo || []) : [];
+    const shadowApis = shadowApisValueResult.status === 'fulfilled' ? (shadowApisValueResult.value?.shadowApisCount || []) : [];
+    const unauthenticatedApis = unauthenticatedApisResult.status === 'fulfilled' ? (unauthenticatedApisResult.value?.unauthenticatedApiList || []) : [];
+    const highRiskApis = highRiskResult.status === 'fulfilled' ? (highRiskResult.value?.response?.apiInfos || []) : [];
+    const sensitiveDataEndpoints = sensitiveResult.status === 'fulfilled' ? (sensitiveResult.value?.response?.apiInfos || []) : [];
+    const thirdPartyApis = thirdPartyResult.status === 'fulfilled' ? (thirdPartyResult.value?.response?.apiInfos || []) : [];
+    const notTestedEndpointsApiInfo = notTestedApiInfoResult.status === 'fulfilled' ? (notTestedApiInfoResult.value?.notTestedEndpointsApiInfo || []) : [];
+    const onlyOnceTestedEndpointsApiInfo = onlyOnceTestedApiInfoResult.status === 'fulfilled' ? (onlyOnceTestedApiInfoResult.value?.onlyOnceTestedEndpointsApiInfo || []) : [];
+    const misConfiguredTestsApiInfo = misConfiguredTestsApiInfoResult.status === 'fulfilled' ? (misConfiguredTestsApiInfoResult.value?.misConfiguredTestsApiInfo || []) : [];
+    const vulnerableApiCountApiInfo = vulnerableApiCountResult.status === 'fulfilled' ? (vulnerableApiCountResult.value?.buaCategoryApiInfo || []) : [];
+    const brokenAuthIssuesApiInfo = brokenAuthIssuesApiInfoResult.status === 'fulfilled' ? (brokenAuthIssuesApiInfoResult.value?.buaCategoryApiInfo || []) : [];
     const issuesByApisForAllActionItems = issuesByApisResult.status === 'fulfilled' ? issuesByApisResult.value : null;
     const urlsByIssuesForAllActionItems = urlsByIssuesResult.status === 'fulfilled' ? urlsByIssuesResult.value : null;
-
 
     const multipleIssuesApiInfo = Array.isArray(issuesByApisForAllActionItems?.issueNamesByAPIs)
         ? issuesByApisForAllActionItems.issueNamesByAPIs
